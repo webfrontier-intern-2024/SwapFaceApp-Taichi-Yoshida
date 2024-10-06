@@ -16,6 +16,10 @@ npm i
 
 - [Tailwind CSS](https://marketplace.visualstudio.com/items?itemName=bradlc.vscode-tailwindcss)
 
+#### react-dropzone
+
+- [react-dropzone](https://react-dropzone.js.org/)
+
 ## Tailwind CSS
 
 [Docs](https://tailwindcss.com/docs/installation)
@@ -29,6 +33,8 @@ npm i
 [Docs](https://mui.com/material-ui/getting-started/overview/)
 
 ## React Hook Form
+
+
 
 [Docs](https://react-hook-form.com/docs)
 
