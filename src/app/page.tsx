@@ -24,7 +24,7 @@ export default function Home() {
   // react-dropzone を使ったドロップゾーン設定
   const { getRootProps, getInputProps } = useDropzone({
     accept: {
-      "image/*": [".png", ".jpeg", ".jpg", ".gif"],
+      "image/*": [".png", ".jpeg", ".jpg"],
     },
     onDrop: (acceptedFiles) => {
       if (acceptedFiles.length > 0) {
@@ -53,8 +53,8 @@ export default function Home() {
           className="flex items-center justify-center w-96 h-60 border-2 border-dashed border-blue-400 rounded-lg bg-white cursor-pointer"
         >
           <input {...getInputProps()} />
-          <p className="text-gray-500">
-            ここにファイルをドラッグ＆ドロップするか、クリックしてファイルを選択してください
+          <p className="text-gray-500 m-8 text-center">
+            ここに以下の拡張子に該当するファイルを<br/>ドラッグ＆ドロップするか、<br/>クリックしてファイルを選択してください <br/> (png, jpeg, jpg)
           </p>
         </div>
       )}
