@@ -43,7 +43,7 @@ export default function Home() {
     setShowResult(true);
   };
 
-  const handleCountUp = () => {
+  const imageRecognition = () => {
     setCount((prevCount) => prevCount + 1);
     setDesiredResults(true);
   };
@@ -52,12 +52,13 @@ export default function Home() {
     setShowResult(false); // マスクボタンを押したときにボタンを非表示にする
   };
 
+  // 全てリセットして最初の画面に戻す
   const resetForm = () => {
     setSelectedFile(null);
     setFilePreview(null);
     setDesiredResults(false);
     setCount(0);
-    setShowResult(true); // 全てリセットして最初の画面に戻す
+
   };
 
   const countShow = count % 2 === 0;
@@ -112,7 +113,7 @@ export default function Home() {
             画像を削除
           </CustomButton>
           {!desiredResults ? (
-            <CustomButton onClick={handleCountUp} disabled={false}>
+            <CustomButton onClick={imageRecognition} disabled={false}>
               画像を送信
             </CustomButton>
           ) : (
