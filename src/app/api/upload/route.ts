@@ -2,10 +2,9 @@ import { NextRequest, NextResponse } from 'next/server';
 
 export const config = {
   api: {
-    bodyParser: false, // formDataを扱うためにbodyParserを無効化
+    bodyParser: false,
   },
 };
-
 export async function POST(req: NextRequest) {
   const apiUrl = process.env.NEXT_PUBLIC_COMPREFACE_URL || '';
   const apiKey = process.env.NEXT_PUBLIC_COMPREFACE_KEY || '';  
@@ -20,14 +19,14 @@ export async function POST(req: NextRequest) {
 
     const response = await fetch(apiUrl, {
       method: 'POST',
-      headers: { 'x-api-key': apiKey },
+      headers: {'x-api-key': apiKey },
       body: formData,
     });
 
     if (!response.ok) throw new Error(response.statusText);
 
     const result = await response.json();
-    return NextResponse.json({ message: '画像送信成功', result });
+    return NextResponse.json({ message: '成功したお', result });
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : '不明なエラー';
     console.error('エラーが発生しました:', errorMessage);
