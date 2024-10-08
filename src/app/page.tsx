@@ -3,14 +3,15 @@ import Image from "next/image";
 import { useState, useEffect } from "react";
 import { useDropzone } from "react-dropzone";
 
-//コンポーネント
+// コンポーネント
 import { CustomButton } from "./components/custom-button";
 
 export default function Home() {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [filePreview, setFilePreview] = useState<string | null>(null);
-  const [count, setCount] = useState(0);
-  const [isImageSent, setIsImageSent] = useState(false);
+  const [desiredResults, setDesiredResults] = useState(false); //望まれたJson結果だったか。
+  const [showResult, setShowResult] = useState(true); //結果の表示ステータス
+  const [count, setCount] = useState(0);//挙動確認で設定
 
   useEffect(() => {
     if (selectedFile) {
@@ -22,7 +23,6 @@ export default function Home() {
     }
   }, [selectedFile]);
 
-  // react-dropzone を使ったドロップゾーン設定
   const { getRootProps, getInputProps } = useDropzone({
     accept: {
       "image/*": [".png", ".jpeg", ".jpg"],
@@ -30,34 +30,41 @@ export default function Home() {
     onDrop: (acceptedFiles) => {
       if (acceptedFiles.length > 0) {
         setSelectedFile(acceptedFiles[0]);
-        setIsImageSent(false);
+        setDesiredResults(false);
+        setShowResult(true); // ボタンを再表示
       }
     },
   });
 
-  // ファイルを削除する
   const removeFile = () => {
     setSelectedFile(null);
     setFilePreview(null);
-    setIsImageSent(false);
+    setDesiredResults(false);
+    setShowResult(true); // 削除後にボタンを再表示
   };
 
-  // カウントアップ関数
   const handleCountUp = () => {
     setCount((prevCount) => prevCount + 1);
-    setIsImageSent(true);
+    setDesiredResults(true);
   };
 
-  let isMaskButtonDisabled = false; 
-  if(count % 2 == 0){
-    isMaskButtonDisabled = true;
-  }else{
-    isMaskButtonDisabled = false;
-  }
+  const handleMask = () => {
+    setShowResult(false); // マスクボタンを押したときにボタンを非表示にする
+  };
+
+  const resetForm = () => {
+    setSelectedFile(null);
+    setFilePreview(null);
+    setDesiredResults(false);
+    setCount(0);
+    setShowResult(true); // 全てリセットして最初の画面に戻す
+  };
+
+  const countShow = count % 2 === 0;
 
   return (
     <div className="flex flex-col items-center justify-center bg-gray-100 font-sans min-h-screen">
-      {/* ファイルがない場合にドロップゾーンを表示 */}
+      {/* ファイルアップロードフィールドの表示 */}
       {!selectedFile && (
         <div
           {...getRootProps()}
@@ -65,13 +72,18 @@ export default function Home() {
         >
           <input {...getInputProps()} />
           <p className="text-gray-500 m-8 text-center">
-            ここに以下の拡張子に該当するファイルを<br />ドラッグ＆ドロップするか、<br />クリックしてファイルを選択してください <br /> (png, jpeg, jpg)
+            ここに以下の拡張子に該当するファイルを
+            <br />
+            ドラッグ＆ドロップするか、
+            <br />
+            クリックしてファイルを選択してください
+            <br /> (png, jpeg, jpg)
           </p>
         </div>
       )}
 
-      {/* 画像ファイルが読み込まれた際に画像を表示 */}
-      {filePreview && (
+      {/* 画像が読み込まれた際に画像を表示 */}
+      {filePreview && showResult && (
         <div className="m-4">
           <Image
             src={filePreview}
@@ -82,24 +94,45 @@ export default function Home() {
         </div>
       )}
 
-      {/* 画像ファイルが入った際に出現するボタン */}
-      {selectedFile && (
+      {selectedFile && !showResult && (
+        <div className="m-4">
+          <Image
+            src= "/images/result.png"
+            alt="画像ファイル"
+            width={500}
+            height={500}
+          />
+        </div>
+      )}
+
+      {/* 画像が読み込まれた際にボタンを表示 */}
+      {selectedFile && showResult && (
         <div className="m-4 flex space-x-10">
           <CustomButton onClick={removeFile} disabled={false}>
             画像を削除
           </CustomButton>
-          {!isImageSent ? (
+          {!desiredResults ? (
             <CustomButton onClick={handleCountUp} disabled={false}>
               画像を送信
             </CustomButton>
           ) : (
-            <CustomButton onClick={removeFile} disabled={isMaskButtonDisabled}>
+            <CustomButton onClick={handleMask} disabled={countShow}>
               画像をマスク
             </CustomButton>
           )}
         </div>
       )}
-      {/* カウント表示：ボタンが機能しているかのテスト */}
+
+      {/* 戻るボタンの表示 */}
+      {selectedFile && !showResult && (
+        <div className="m-4">
+          <CustomButton onClick={resetForm} disabled={false}>
+            戻る
+          </CustomButton>
+        </div>
+      )}
+
+      {/* お試しのカウント表示 */}
       <p className="text-xl">カウント: {count}</p>
     </div>
   );
