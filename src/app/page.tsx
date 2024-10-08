@@ -51,7 +51,7 @@ export default function Home() {
     setError(null);
 
     try {
-      const response = await fetch("/api/upload", {
+      const response = await fetch("/api/face", {
         method: "POST",
         body: formData,
       });
@@ -83,9 +83,9 @@ export default function Home() {
   return (
     <div className="flex flex-col items-center justify-center bg-gray-200 font-sans min-h-screen">
       {!selectedFile && (
-        <div className="bg-white py-6 rounded-xl m-4 sm:py-8 lg:py-12">
+        <div className="bg-white py-6 rounded-xl m-4 border border-red-900 border-4 sm:py-8 lg:py-12">
           <div className="mx-auto max-w-screen-2xl px-4 md:px-8">
-            <div className="flex flex-col overflow-hidden rounded-lg bg-gray-200 sm:flex-row md:h-80">
+            <div className="flex flex-col overflow-hidden rounded-lg bg-gray-200 border border-slate-950 border-4 sm:flex-row md:h-80">
               <div className="order-first h-48 w-full bg-gray-300 sm:order-none sm:h-auto sm:w-1/2 lg:w-2/5">
                 <img
                   src="/images/pro.png"
@@ -104,11 +104,11 @@ export default function Home() {
                 </p>
                 <div
                   {...getRootProps()}
-                  className="flex items-center justify-center border-2 border-dashed border-blue-400 rounded-lg bg-white cursor-pointer md:w-auto h-auto lg:w-96 h-28 "
+                  className="flex items-center justify-center border-2 border-dashed border-amber-900 rounded-lg bg-white cursor-pointer md:w-auto h-auto lg:w-96 h-28 "
                 >
                   <input {...getInputProps()} />
                   <p className="text-gray-500 m-8 text-center md:text-xs lg:text-sm">
-                    ここにファイルをドラッグ＆ドロップするか、クリックして選択してください
+                    ここにファイルをドラッグ＆ドロップするか、<br />クリックして選択してください
                     <br /> (png, jpeg, jpg)
                   </p>
                 </div>
@@ -118,7 +118,7 @@ export default function Home() {
         </div>
       )}
       {filePreview && showResult && (
-        <div className="bg-white py-6 rounded-xl m-4 flex flex-col item-center sm:py-8 lg:py-12">
+        <div className="bg-white rounded-xl m-4 flex flex-col item-center border border-4 border-amber-900 sm:py-8 lg:py-12">
           <div className="m-4">
             <Image src={filePreview} alt="画像ファイル" width={300} height={300} />
           </div>
