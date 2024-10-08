@@ -31,7 +31,7 @@ export default function Home() {
       if (acceptedFiles.length > 0) {
         setSelectedFile(acceptedFiles[0]);
         setDesiredResults(false);
-        setShowResult(true); // ボタンを再表示
+        setShowResult(true);
       }
     },
   });
@@ -40,7 +40,7 @@ export default function Home() {
     setSelectedFile(null);
     setFilePreview(null);
     setDesiredResults(false);
-    setShowResult(true); // 削除後にボタンを再表示
+    setShowResult(true);
   };
 
   const handleCountUp = () => {
