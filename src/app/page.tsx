@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { useDropzone } from "react-dropzone";
 import { CustomButton } from "./components/custom-button";
 import ImageOverlay from "./components/face-mask"
+import { CiLocationArrow1 } from "react-icons/ci";
 interface BoxData {
   probability: number;
   x_max: number;
@@ -133,7 +134,14 @@ export default function Home() {
             </CustomButton>
             {!showMaskButton && (
               <CustomButton onClick={imageRecognition} disabled={isSending || error !== null}>
-                {isSending ? "送信中..." : "画像を送信"}
+                <div className="flex items-center justify-around ">
+                  <div>
+                    {isSending ? "送信中..." : "画像を送信"}
+                  </div>
+                  <div className="ml-2">
+                    <CiLocationArrow1 />
+                  </div>
+                </div>
               </CustomButton>
             )}
             {showMaskButton && (
