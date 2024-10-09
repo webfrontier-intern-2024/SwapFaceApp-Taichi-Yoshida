@@ -11,9 +11,9 @@ export async function POST(req: NextRequest) {
 
   try {
     const formData = await req.formData();
-    const file = formData.get('file') as File | null;
-    console.log(formData)
-    if (!file) throw new Error('ファイルがアップロードされていません');
+    //const file = formData.get('file') as File | null;
+    //console.log(formData)
+    //if (!file) throw new Error('ファイルがアップロードされていません');
 
     const response = await fetch(apiUrl, {
       method: 'POST',
