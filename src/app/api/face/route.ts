@@ -6,8 +6,8 @@ export const config = {
   },
 };
 export async function POST(req: NextRequest) {
-  const apiUrl = process.env.NEXT_PUBLIC_COMPREFACE_URL || '';
-  const apiKey = process.env.NEXT_PUBLIC_COMPREFACE_KEY || '';  
+  const apiUrl = process.env.COMPREFACE_URL || '';
+  const apiKey = process.env.COMPREFACE_KEY || '';  
 
   try {
     const formData = await req.formData();
