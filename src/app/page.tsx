@@ -3,13 +3,25 @@ import Image from "next/image";
 import { useState, useEffect } from "react";
 import { useDropzone } from "react-dropzone";
 import { CustomButton } from "./components/custom-button";
+import ImageOverlay from "./components/face-mask"
+interface BoxData {
+  probability: number;
+  x_max: number;
+  y_max: number;
+  x_min: number;
+  y_min: number;
+}
 
 export default function Home() {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [filePreview, setFilePreview] = useState<string | null>(null);
   const [isSending, setIsSending] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [showResult, setShowResult] = useState(true);
+  const [showResult, setShowResult] = useState(false);
+  const [warningShowModal,setWarningShowModal] = useState(false)
+  const [confirmShowModal,setConfirmShowModal] = useState(false)
+  const [showMaskButton, setShowMaskButton] = useState(false);
+  const [jsonData,setJsonData] = useState<BoxData>();
 
   // ファイル選択時にプレビューを作成
   useEffect(() => {
@@ -26,7 +38,7 @@ export default function Home() {
     onDrop: (acceptedFiles) => {
       if (acceptedFiles.length > 0) {
         setSelectedFile(acceptedFiles[0]);
-        setShowResult(true);
+        setShowResult(false);
         setError(null);
       }
     },
@@ -38,7 +50,8 @@ export default function Home() {
     setFilePreview(null);
     setError(null);
     setIsSending(false);
-    setShowResult(true);
+    setShowResult(false);
+    setShowMaskButton(false);
   };
 
   // 画像認識APIに送信
@@ -58,17 +71,9 @@ export default function Home() {
       const data = await response.json();
       if (response.ok) {
         setError(null);
-        setShowResult(false);
-        console.log(data)
-        // JSONから必要な値を抜き出す
-        const box = data.result[0].box; // 受け取ったJSONからboxを取得 
-        console.log(box)
-        const xMax = box.x_max;
-        const yMax = box.y_max;
-        const xMin = box.x_min;
-        const yMin = box.y_min;
-        // 値をconsole.log
-        console.log({ xMax, yMax, xMin, yMin });
+        setShowMaskButton(true); 
+        setJsonData(data.box);
+        console.log(data);
       } else {
         setError(data.message);
       }
@@ -117,27 +122,102 @@ export default function Home() {
           </div>
         </div>
       )}
-      {filePreview && showResult && (
+      {filePreview && !showResult && (
         <div className="bg-white rounded-xl m-4 flex flex-col item-center border border-4 border-amber-900 sm:py-8 lg:py-12">
           <div className="m-4">
             <Image src={filePreview} alt="画像ファイル" width={300} height={300} />
           </div>
           <div className="m-4 flex justify-around">
-            <CustomButton onClick={resetForm} disabled={false}>
+            <CustomButton onClick={() => setWarningShowModal(true)} disabled={false}>
               画像を削除
             </CustomButton>
-            <CustomButton onClick={imageRecognition} disabled={isSending || error !== null}>
-              {isSending ? "送信中..." : "画像を送信"}
-            </CustomButton>
+            {!showMaskButton && (
+              <CustomButton onClick={imageRecognition} disabled={isSending || error !== null}>
+                {isSending ? "送信中..." : "画像を送信"}
+              </CustomButton>
+            )}
+            {showMaskButton && (
+              <CustomButton onClick={() => setConfirmShowModal(true)} disabled={false}>
+                画像をマスク
+              </CustomButton>
+            )}
           </div>
           {error && <p className="text-red-500 text-center">{error}</p>}
         </div>
       )}
-      {selectedFile && !showResult && (
-        <div className="m-4">
-          <CustomButton onClick={resetForm} disabled={false}>
-            戻る
-          </CustomButton>
+      {showResult && filePreview && (
+        <div className="bg-white rounded-xl m-4 flex flex-col item-center border border-4 border-amber-900 sm:py-8 lg:py-12">
+          <div className="m-4 flex flex-col items-center justify-center">
+            <div className="m-5">
+              <ImageOverlay
+                imgAUrl={filePreview}
+                imgBUrl={"/images/smile-face.png"}
+                boxData={jsonData}
+              />
+            </div>
+            <CustomButton onClick={resetForm} disabled={false}>
+              戻る
+            </CustomButton>
+          </div>
+        </div>
+      )}
+
+      {/* モーダルコンポーネント */}
+      {warningShowModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-0">
+          <div className="fixed inset-0 bg-black bg-opacity-50" onClick={() => setWarningShowModal(false)}></div>
+          <div className="mx-auto w-full overflow-hidden rounded-lg bg-white shadow-xl sm:max-w-sm z-10">
+            <div className="relative p-5">
+              <div className="text-center">
+                <div className="mx-auto mb-5 flex h-10 w-10 items-center justify-center rounded-full bg-red-100 text-red-500">
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="h-6 w-6">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" />
+                  </svg>
+                </div>
+                <div>
+                  <h3 className="text-lg font-medium text-secondary-900">画像を削除しますか？</h3>
+                  <div className="mt-2 text-sm text-secondary-500">この操作は取り消せません。</div>
+                </div>
+              </div>
+              <div className="mt-5 flex justify-end gap-3">
+                <button type="button" onClick={() => setWarningShowModal(false)} className="flex-1 rounded-lg border border-gray-300 bg-white px-4 py-2 text-center text-sm font-medium text-gray-700 shadow-sm transition-all hover:bg-gray-100">
+                  キャンセル
+                </button>
+                <button type="button" onClick={() => { resetForm(); setWarningShowModal(false); }} className="flex-1 rounded-lg border border-red-500 bg-red-500 px-4 py-2 text-center text-sm font-medium text-white shadow-sm transition-all hover:border-red-700 hover:bg-red-700">
+                  削除
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+      {/* 確認モーダル */}
+      {confirmShowModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-0">
+          <div className="fixed inset-0 bg-black bg-opacity-50" onClick={() => setConfirmShowModal(false)}></div>
+          <div className="mx-auto w-full overflow-hidden rounded-lg bg-white shadow-xl sm:max-w-sm z-10">
+            <div className="relative p-5">
+              <div className="text-center">
+                <div className="mx-auto mb-5 flex h-10 w-10 items-center justify-center rounded-full bg-green-100 text-green-500">
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="h-6 w-6">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                </div>
+                <div>
+                  <h3 className="text-lg font-medium text-secondary-900">画像をマスク加工しますか？</h3>
+                  <div className="mt-2 text-sm text-secondary-500">この操作で元画像が加工される事はありません。</div>
+                </div>
+              </div>
+              <div className="mt-5 flex justify-end gap-3">
+                <button type="button" onClick={() => setConfirmShowModal(false)} className="flex-1 rounded-lg border border-gray-300 bg-white px-4 py-2 text-center text-sm font-medium text-gray-700 shadow-sm transition-all hover:bg-gray-100">
+                  キャンセル
+                </button>
+                <button type="button" onClick={() => { setShowResult(true); setConfirmShowModal(false); }} className="flex-1 rounded-lg border border-green-500 bg-green-500 px-4 py-2 text-center text-sm font-medium text-white shadow-sm transition-all hover:border-green-500 hover:bg-green-500">
+                  加工開始！
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
       )}
     </div>
