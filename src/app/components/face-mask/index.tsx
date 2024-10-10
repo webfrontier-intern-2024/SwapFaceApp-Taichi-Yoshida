@@ -62,9 +62,7 @@ const ImageOverlay: React.FC<ImageOverlayProps> = ({ imgAUrl, imgBUrl, boxData }
   }, [imgAUrl, imgBUrl, ex_x_min, ex_y_min, width, height]);
 
   return (
-    <div>
-      <canvas ref={canvasRef} className='h-80 w-80'></canvas>
-    </div>
+    <canvas ref={canvasRef} className='max-w-60 max-h-60 object-contain'></canvas>
   );
 };
 export default ImageOverlay;
