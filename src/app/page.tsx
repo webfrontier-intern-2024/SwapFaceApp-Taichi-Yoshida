@@ -1,10 +1,21 @@
 "use client";
 import Image from "next/image";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef} from "react";
+
+//package
 import { useDropzone } from "react-dropzone";
+import { useReward } from "react-rewards";
+import { CiLocationArrow1 } from "react-icons/ci";
+
+//components
 import { CustomButton } from "./components/custom-button";
 import ImageOverlay from "./components/face-mask"
-import { CiLocationArrow1 } from "react-icons/ci";
+
+//lottie
+import { FileUp } from "./components/lottie/file-up";
+import {LightArrow} from "./components/lottie/light-arrow";
+
+//返り値
 interface BoxData {
   probability: number;
   x_max: number;
@@ -13,7 +24,25 @@ interface BoxData {
   y_min: number;
 }
 
+//紙吹雪
+const useConfetti = (callback: () => void, delay: number, condition: boolean) => {
+  const callbackRef = useRef(() => {});
+
+  useEffect(() => {
+    callbackRef.current = callback;
+  }, [callback]);
+
+  useEffect(() => {
+    if (delay !== null && condition) {
+      const timeoutId = setTimeout(() => callbackRef.current(), delay);
+      return () => clearTimeout(timeoutId);
+    }
+  }, [delay, condition]);
+};
+
 export default function Home() {
+
+  //useState
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [filePreview, setFilePreview] = useState<string | null>(null);
   const [isSending, setIsSending] = useState(false);
@@ -23,6 +52,25 @@ export default function Home() {
   const [confirmShowModal,setConfirmShowModal] = useState(false)
   const [showMaskButton, setShowMaskButton] = useState(false);
   const [jsonData,setJsonData] = useState<BoxData>();
+  const [isDragActive, setIsDragActive] = useState(false); 
+  
+  //useReward
+  const { reward: rewardLeft, isAnimating: isAnimatingLeft } = useReward(
+    "rewardLeft",
+    "confetti",
+    {
+      angle: 45,
+      position: "absolute",
+    }
+  );
+  const { reward: rewardRight, isAnimating: isAnimatingRight } = useReward(
+    "rewardRight",
+    "confetti",
+    {
+      angle: 135,
+      position: "absolute",
+    }
+  );
 
   // ファイル選択時にプレビューを作成
   useEffect(() => {
@@ -34,7 +82,7 @@ export default function Home() {
   }, [selectedFile]);
 
   // ドロップゾーンの設定
-  const { getRootProps, getInputProps } = useDropzone({
+  const { getRootProps, getInputProps} = useDropzone({
     accept: { "image/*": [".png", ".jpeg", ".jpg"] },
     onDrop: (acceptedFiles) => {
       if (acceptedFiles.length > 0) {
@@ -86,18 +134,38 @@ export default function Home() {
     }
   };  
 
+  //紙吹雪
+  useConfetti(() => {
+    if (!isAnimatingRight || !isAnimatingLeft) {
+      rewardLeft();
+      rewardRight();
+    }}
+    ,1000
+    ,showResult
+  );
+
   return (
-    <div className="flex flex-col items-center justify-center bg-gray-200 font-sans min-h-screen">
+    <div className="flex flex-col items-center justify-center font-sans min-h-screen" style={{
+      backgroundImage: `linear-gradient(to right, #f77062, #fe5196)`,
+    }}>
+      <div className="relative flex items-end justify-between z-50 w-full h-full">
+        <span id="rewardLeft" className="absolute left-0 bottom-0">
+        </span>
+        <span id="rewardRight" className="absolute right-0 bottom-0">
+        </span>
+      </div>
       {!selectedFile && (
-        <div className="bg-white py-6 rounded-xl m-4 border border-red-900 border-4 sm:py-8 lg:py-12">
+        <div className="bg-white py-6 rounded-xl m-4 border border-red-900 border-4 sm:py-8 lg:py-12 w-2/3">
           <div className="mx-auto max-w-screen-2xl px-4 md:px-8">
             <div className="flex flex-col overflow-hidden rounded-lg bg-gray-200 border border-slate-950 border-4 sm:flex-row md:h-80">
               <div className="order-first h-48 w-full bg-gray-300 sm:order-none sm:h-auto sm:w-1/2 lg:w-2/5">
-                <img
+                <Image
                   src="/images/pro.png"
                   loading="lazy"
                   alt="プロフィール画像"
                   className="h-full w-full object-cover object-center"
+                  height={400}
+                  width={400}
                 />
               </div>
               <div className="flex w-full flex-col p-4 sm:w-1/2 sm:p-8 lg:w-3/5">
@@ -106,65 +174,87 @@ export default function Home() {
                 </h2>
 
                 <p className="mb-8 max-w-md text-gray-600">
-                  顔認識を行い、写真に映る顔にスタンプを貼り付けます。
+                  顔認識を行い、<br />写真に映る顔にスタンプを貼り付けます。
                 </p>
                 <div
                   {...getRootProps()}
-                  className="flex items-center justify-center border-2 border-dashed border-amber-900 rounded-lg bg-white cursor-pointer md:w-auto h-auto lg:w-96 h-28 "
+                  onMouseEnter={() => setIsDragActive(true)}
+                  onMouseLeave={() => setIsDragActive(false)}
+                  className="h-40 flex items-center justify-center border-2 border-dashed border-amber-900 rounded-lg bg-white cursor-pointer md:w-auto h-auto lg:w-96 h-28"
                 >
                   <input {...getInputProps()} />
-                  <p className="text-gray-500 m-8 text-center md:text-xs lg:text-sm">
-                    ここにファイルをドラッグ＆ドロップするか、<br />クリックして選択してください
-                    <br /> (png, jpeg, jpg)
-                  </p>
+                  {isDragActive ? (
+                    <FileUp />
+                  ) : (
+                    <p className="text-gray-500 text-center md:text-xs lg:text-sm">
+                      ここにファイルをドラッグ＆ドロップするか、<br />クリックして選択してください
+                      <br /> (png, jpeg, jpg)
+                    </p>
+                  )}
                 </div>
               </div>
             </div>
           </div>
         </div>
       )}
+
+      {/* 画像プレビューがある場合はモーダルを表示 */}
       {filePreview && !showResult && (
-        <div className="bg-white rounded-xl m-4 flex flex-col item-center border border-4 border-amber-900 sm:py-8 lg:py-12">
-          <div className="m-4">
-            <Image src={filePreview} alt="画像ファイル" width={300} height={300} />
-          </div>
-          <div className="m-4 flex justify-around">
-            <CustomButton onClick={() => setWarningShowModal(true)} disabled={false}>
-              画像を削除
-            </CustomButton>
-            {!showMaskButton && (
-              <CustomButton onClick={imageRecognition} disabled={isSending || error !== null}>
-                <div className="flex items-center justify-around ">
-                  <div>
-                    {isSending ? "送信中..." : "画像を送信"}
-                  </div>
-                  <div className="ml-2">
-                    <CiLocationArrow1 />
-                  </div>
-                </div>
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-0" >
+          <div className="fixed inset-0 bg-black bg-opacity-50 pointer-events-none"></div>
+          <div className="bg-white rounded-xl m-4 flex flex-col items-center border border-red-900 border-4 sm:py-8 lg:py-12 z-10">
+            <div className="m-4">
+              <Image src={filePreview} alt="画像ファイル" width={300} height={300} />
+            </div>
+            <div className="m-4 flex justify-around w-full">
+              <CustomButton onClick={() => setWarningShowModal(true)} disabled={false} lightColor={"bg-red-500"} darkColor={"bg-red-600"}>
+                画像を削除
               </CustomButton>
-            )}
-            {showMaskButton && (
-              <CustomButton onClick={() => setConfirmShowModal(true)} disabled={false}>
-                画像をマスク
-              </CustomButton>
-            )}
+              {!showMaskButton && (
+                <CustomButton onClick={imageRecognition} disabled={isSending || error !== null} lightColor={"bg-blue-500"} darkColor={"bg-blue-600"}>
+                  <div className="flex items-center justify-around">
+                    <div>{isSending ? "送信中..." : "顔認識確認"}</div>
+                    <div className="ml-2">
+                      <CiLocationArrow1 />
+                    </div>
+                  </div>
+                </CustomButton>
+              )}
+              {showMaskButton && (
+                <CustomButton onClick={() => setConfirmShowModal(true)} disabled={false} lightColor={"bg-green-500"} darkColor={"bg-green-600"}>
+                  画像をマスク
+                </CustomButton>
+              )}
+            </div>
+            {!isSending && showMaskButton && <p className="text-blue-500 text-center">座標取得に成功しました。</p>}
+            {error && <p className="text-red-500 text-center">{error}</p>}
           </div>
-          {error && <p className="text-red-500 text-center">{error}</p>}
         </div>
       )}
       {showResult && filePreview && (
-        <div className="bg-white rounded-xl m-4 flex flex-col item-center border border-4 border-amber-900 sm:py-8 lg:py-12">
+        <div className="bg-white py-6 rounded-xl m-4 border border-red-900 border-4 sm:py-8 lg:py-12 w-2/3">
           <div className="m-4 flex flex-col items-center justify-center">
-            <div className="m-5">
+            <svg width="400" height="100">
+                <defs>
+                    <path id="curve" d="M 0 100 Q 200 0, 400 100" fill="transparent" />
+                </defs>
+                <text>
+                    <textPath href="#curve" startOffset="50%" textAnchor="middle" className="text-3xl font-bold text-blue-500">
+                        は〜い。完成〜〜〜。
+                    </textPath>
+                </text>
+            </svg>
+            <div className="m-5 flex items-center justify-center">
+              <Image src={filePreview} alt="画像ファイル" width={320} height={320} className="max-w-60 max-h-60 object-contain"/>
+              <LightArrow/>
               <ImageOverlay
                 imgAUrl={filePreview}
                 imgBUrl={"/images/smile-face.png"}
                 boxData={jsonData}
-              />
-            </div>
-            <CustomButton onClick={resetForm} disabled={false}>
-              戻る
+            />   
+            </div>     
+            <CustomButton onClick={resetForm} disabled={false} lightColor={"bg-green-500"} darkColor={"bg-green-600"}>
+              <div className="mx-12">戻る</div>
             </CustomButton>
           </div>
         </div>
