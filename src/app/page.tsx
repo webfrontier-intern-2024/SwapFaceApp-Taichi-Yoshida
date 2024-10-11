@@ -89,8 +89,11 @@ export default function Home() {
         setSelectedFile(acceptedFiles[0]);
         setShowResult(false);
         setError(null);
+        setIsDragActive(false); // ドロップが完了したら非アクティブに戻す
       }
     },
+    onDragEnter: () => setIsDragActive(true), // ドラッグが始まったらアクティブに
+    onDragLeave: () => setIsDragActive(false), // ドラッグが終了したら非アクティブに
   });
 
   // フォームリセット
