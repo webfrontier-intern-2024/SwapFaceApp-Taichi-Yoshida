@@ -155,7 +155,7 @@ export default function Home() {
         </span>
       </div>
       {!selectedFile && (
-        <div className="bg-white py-6 rounded-xl m-4 border border-red-900 border-4 sm:py-8 lg:py-12 w-2/3">
+        <div className="bg-white py-6 rounded-xl m-4 border border-red-900 w-2/3 border-4 sm:py-8 lg:py-12 w-2/3">
           <div className="mx-auto max-w-screen-2xl px-4 md:px-8">
             <div className="flex flex-col overflow-hidden rounded-lg bg-gray-200 border border-slate-950 border-4 sm:flex-row md:h-80">
               <div className="order-first h-48 w-full bg-gray-300 sm:order-none sm:h-auto sm:w-1/2 lg:w-2/5">
@@ -176,11 +176,13 @@ export default function Home() {
                 <p className="mb-8 max-w-md text-gray-600">
                   顔認識を行い、<br />写真に映る顔にスタンプを貼り付けます。
                 </p>
+                
+                {/* 中央寄せにするために以下のクラスを追加 */}
                 <div
                   {...getRootProps()}
                   onMouseEnter={() => setIsDragActive(true)}
                   onMouseLeave={() => setIsDragActive(false)}
-                  className="h-40 flex items-center justify-center border-2 border-dashed border-amber-900 rounded-lg bg-white cursor-pointer md:w-auto h-auto lg:w-96 h-28"
+                  className="flex items-center justify-center h-52 w-full border-2 border-dashed border-amber-900 rounded-lg bg-white cursor-pointer md:w-auto lg:w-96"
                 >
                   <input {...getInputProps()} />
                   {isDragActive ? (
