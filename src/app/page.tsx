@@ -15,7 +15,7 @@ import ImageOverlay from "./components/face-mask"
 import { FileUp } from "./components/lottie/file-up";
 import {LightArrow} from "./components/lottie/light-arrow";
 
-//返り値
+//顔認識の結果から取得されるデータの型定義
 interface BoxData {
   probability: number;
   x_max: number;
