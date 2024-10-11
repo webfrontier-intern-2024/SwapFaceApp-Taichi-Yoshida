@@ -1,11 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
 
-export const config = {
-  api: {
-    bodyParser: false,
-  },
-};
-
 export async function POST(req: NextRequest) {
   const apiUrl = process.env.HIMAZIN_COMPREFACE_URL || '';
   const apiKey = process.env.HIMAZIN_COMPREFACE_KEY || '';  
