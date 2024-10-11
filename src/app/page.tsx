@@ -254,7 +254,7 @@ export default function Home() {
               <LightArrow/>
               <ImageOverlay
                 imgAUrl={filePreview}
-                imgBUrl={"/images/smile-face.png"}
+                imgBUrl="/images/smile-face.png"
                 boxData={jsonData}
             />   
             </div>     
