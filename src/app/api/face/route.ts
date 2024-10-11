@@ -14,7 +14,6 @@ export async function POST(req: NextRequest) {
     if (!response.ok) throw new Error(response.statusText);
     const result = await response.json();//APIから返されたレスポンスをJSON形式に変換
     const box = result.result?.[0].box;//APIのレスポンスの中から、認識された顔の「ボックス情報」を取得
-    console.log(box)
     return NextResponse.json({ message: '成功', box });
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : '不明なエラー';
